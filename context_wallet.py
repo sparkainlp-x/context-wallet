@@ -53,6 +53,7 @@ _LEDGER_KEYS = {"schema_version", "consumed_packet_ids"}
 _PROFILE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,79}$")
 # ASCII digits only: in Python str patterns, \d also matches non-ASCII digits.
 _TIMESTAMP_RE = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")
+_INVISIBLE_CATEGORIES = {"Cf", "Zl", "Zp"}
 
 
 class WalletError(ValueError):
@@ -113,6 +114,14 @@ def _require_text(value: Any, label: str, max_length: int) -> str:
     # Category Cc covers C0 controls, DEL, and C1 controls (U+0080-U+009F).
     if any(unicodedata.category(character) == "Cc" for character in value):
         raise WalletError(f"{label} must not contain control characters")
+    # Invisible format characters (Cf: bidi overrides/isolates, zero-width spaces
+    # and joiners, soft hyphen, BOM) and line/paragraph separators (Zl, Zp) can make
+    # the preview look different from what is exported, so they are rejected too.
+    if any(unicodedata.category(character) in _INVISIBLE_CATEGORIES for character in value):
+        raise WalletError(
+            f"{label} must not contain invisible formatting characters "
+            "(e.g. bidi overrides or zero-width characters)"
+        )
     try:
         value.encode("utf-8")
     except UnicodeEncodeError as exc:

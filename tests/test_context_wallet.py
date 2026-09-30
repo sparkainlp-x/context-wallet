@@ -258,6 +258,39 @@ class ContextWalletTests(unittest.TestCase):
                     validate_packet({**make_packet(), "recipient": bad})
         validate_packet({**make_packet(), "recipient": "Café Nord \u2014 démo"})
 
+    def test_invisible_format_characters_are_rejected(self):
+        bad_values = {
+            "right-to-left override": "Coach\u202eevil",
+            "left-to-right isolate": "a\u2066b",
+            "zero-width space": "Coa\u200bch",
+            "zero-width joiner": "a\u200db",
+            "byte-order mark": "\ufeffCoach",
+            "soft hyphen": "Co\u00adach",
+            "line separator": "a\u2028b",
+            "paragraph separator": "a\u2029b",
+        }
+        for name, bad in bad_values.items():
+            with self.subTest(name):
+                with self.assertRaisesRegex(WalletError, "invisible formatting"):
+                    validate_packet({**make_packet(), "recipient": bad})
+                with self.assertRaisesRegex(WalletError, "invisible formatting"):
+                    validate_profile({**PROFILE, "fields": {"preferred_name": bad}})
+                with self.assertRaisesRegex(WalletError, "invisible formatting"):
+                    create_packet(PROFILE, ["timezone"], "R", bad, 60, now=NOW)
+        # Visible non-ASCII text, including emoji without joiners, is still accepted.
+        validate_packet({**make_packet(), "purpose": "Plan \u00e9t\u00e9 \U0001F331 \u05e9\u05dc\u05d5\u05dd"})
+
+    def test_cli_preview_rejects_bidi_override_in_purpose(self):
+        with tempfile.TemporaryDirectory() as directory:
+            profile = Path(directory) / "profile.json"
+            profile.write_text(json.dumps(PROFILE), encoding="utf-8")
+            out, err = StringIO(), StringIO()
+            with redirect_stdout(out), redirect_stderr(err):
+                code = main(["preview", "--profile", str(profile), "--fields", "timezone",
+                             "--recipient", "R", "--purpose", "a\u202eb"])
+        self.assertEqual((code, out.getvalue()), (2, ""))
+        self.assertIn("invisible formatting", err.getvalue())
+
     def test_blank_overlong_and_lone_surrogate_values_are_rejected(self):
         with self.assertRaisesRegex(WalletError, "blank"):
             validate_packet({**make_packet(), "purpose": "   "})
