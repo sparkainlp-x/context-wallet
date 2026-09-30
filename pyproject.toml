@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "context-wallet"
+dynamic = ["version"]
+description = "Offline, stdlib-only prototype for small, user-selected, short-lived plaintext JSON context packets with preview-before-export; not encryption or authentication"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE"]
+authors = [{ name = "Jean-François Brisson" }]
+keywords = ["context", "data-minimization", "consent", "local-first", "offline"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/sparkainlp-x/context-wallet"
+
+[project.scripts]
+context-wallet = "context_wallet:main"
+
+[tool.setuptools]
+py-modules = ["context_wallet"]
+
+[tool.setuptools.dynamic]
+version = { attr = "context_wallet.__version__" }
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.coverage.run]
+branch = true
+include = ["context_wallet.py"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true

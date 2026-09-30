@@ -17,15 +17,17 @@ import sys
 import tempfile
 import unicodedata
 import uuid
+from collections.abc import Iterable, Iterator, Mapping
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from collections.abc import Iterable, Iterator, Mapping
 from typing import Any
 
 try:  # POSIX only; used to serialize concurrent consume runs on one ledger path.
     import fcntl
 except ImportError:  # pragma: no cover - e.g. Windows
     fcntl = None  # type: ignore[assignment]
+
+__version__ = "1.0.1"
 
 SCHEMA_VERSION = 1
 MAX_LIFETIME_SECONDS = 7 * 24 * 60 * 60
@@ -476,6 +478,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Create and verify small, local-only context packets. No network is used."
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     preview = subparsers.add_parser("preview", help="print the exact packet JSON; write nothing")

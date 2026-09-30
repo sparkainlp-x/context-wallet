@@ -1,6 +1,7 @@
 # Copyright (C) 2026 Jean-François Brisson / Spark AI NLP. SPDX-License-Identifier: AGPL-3.0-only
 import ast
 import json
+import re
 import sys
 import tempfile
 import threading
@@ -28,7 +29,6 @@ from context_wallet import (  # noqa: E402
     validate_profile,
     write_packet,
 )
-
 
 NOW = datetime(2030, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
 PACKET_ID = "11111111-1111-4111-8111-111111111111"
@@ -526,6 +526,17 @@ class ContextWalletTests(unittest.TestCase):
                    "json", "os", "pathlib", "re", "sys", "tempfile", "typing", "unicodedata",
                    "uuid"}
         self.assertLessEqual(imported, allowed)
+
+    def test_version_is_single_sourced_and_matches_citation(self):
+        citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+        match = re.search(r"^version: (\S+)$", citation, re.MULTILINE)
+        self.assertIsNotNone(match)
+        self.assertEqual(context_wallet.__version__, match.group(1))
+        out = StringIO()
+        with redirect_stdout(out), self.assertRaises(SystemExit) as caught:
+            main(["--version"])
+        self.assertEqual(caught.exception.code, 0)
+        self.assertIn(context_wallet.__version__, out.getvalue())
 
 
 if __name__ == "__main__":
