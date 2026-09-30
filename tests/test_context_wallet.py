@@ -1,7 +1,6 @@
 # Copyright (C) 2026 Jean-François Brisson / Spark AI NLP. SPDX-License-Identifier: AGPL-3.0-only
 import ast
 import json
-import os
 import sys
 import tempfile
 import threading
@@ -523,8 +522,9 @@ class ContextWalletTests(unittest.TestCase):
                 imported.update(alias.name.split(".")[0] for alias in node.names)
             elif isinstance(node, ast.ImportFrom):
                 imported.add((node.module or "").split(".")[0])
-        allowed = {"__future__", "argparse", "datetime", "fcntl", "json", "os", "pathlib",
-                   "re", "sys", "tempfile", "typing", "unicodedata", "uuid"}
+        allowed = {"__future__", "argparse", "collections", "contextlib", "datetime", "fcntl",
+                   "json", "os", "pathlib", "re", "sys", "tempfile", "typing", "unicodedata",
+                   "uuid"}
         self.assertLessEqual(imported, allowed)
 
 

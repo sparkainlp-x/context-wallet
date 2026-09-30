@@ -9,6 +9,7 @@ authenticate, sign, or transmit them.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import re
@@ -18,7 +19,8 @@ import unicodedata
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from collections.abc import Iterable, Iterator, Mapping
+from typing import Any
 
 try:  # POSIX only; used to serialize concurrent consume runs on one ledger path.
     import fcntl
@@ -409,6 +411,18 @@ def load_ledger(path: str | Path) -> dict[str, Any]:
     return _validate_ledger(_read_json(path))
 
 
+@contextlib.contextmanager
+def _ledger_lock(ledger_file: Path) -> Iterator[None]:
+    """Hold an exclusive advisory lock on ``<ledger>.lock`` (POSIX); no-op elsewhere."""
+    if fcntl is None:  # pragma: no cover - e.g. Windows
+        yield
+        return
+    ledger_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(ledger_file.with_name(ledger_file.name + ".lock"), "a") as lock_handle:
+        fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
+        yield  # closing the handle releases the lock
+
+
 def consume_packet(packet: Any, ledger_path: str | Path, *, now: datetime | None = None) -> None:
     """Mark one packet consumed in a local JSON ledger, once per ledger file.
 
@@ -419,13 +433,7 @@ def consume_packet(packet: Any, ledger_path: str | Path, *, now: datetime | None
     checked = validate_packet(packet)
     check_expiry(checked, now=now)
     ledger_file = Path(ledger_path)
-    lock_handle = None
-    if fcntl is not None:
-        ledger_file.parent.mkdir(parents=True, exist_ok=True)
-        lock_handle = open(ledger_file.with_name(ledger_file.name + ".lock"), "a")
-    try:
-        if lock_handle is not None:
-            fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
+    with _ledger_lock(ledger_file):
         ledger = load_ledger(ledger_file)
         if checked["packet_id"] in ledger["consumed_packet_ids"]:
             raise WalletError("packet has already been consumed in this local ledger")
@@ -434,9 +442,6 @@ def consume_packet(packet: Any, ledger_path: str | Path, *, now: datetime | None
             ledger_file,
             json.dumps(ledger, ensure_ascii=False, indent=2) + "\n",
         )
-    finally:
-        if lock_handle is not None:
-            lock_handle.close()  # closing releases the lock
 
 
 def _add_packet_arguments(parser: argparse.ArgumentParser) -> None:
