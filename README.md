@@ -4,9 +4,18 @@
 
 A compact, offline prototype for preparing a small context packet from a fictional or user-created local profile. A person chooses specific allowlisted fields, names a recipient, states a purpose, sets a short lifetime, and sees the packet before exporting it. The project uses only the Python standard library and makes no network requests.
 
+## Install
+
+Requires Python 3.10 or newer and nothing else. Run the single script from this directory, or install it from a clone to get a `context-wallet` command (which can replace `python3 context_wallet.py` below):
+
+```sh
+python3 -m pip install .
+context-wallet --version
+```
+
 ## Quick start
 
-Requires Python 3.10 or newer. From this directory:
+From this directory:
 
 ```sh
 python3 context_wallet.py preview \
@@ -29,7 +38,7 @@ python3 context_wallet.py export \
   --out ./northstar-packet.json
 ```
 
-The `export` command creates one packet, prints its JSON, and asks for a local `y` confirmation. The file is written only after confirmation, using the same serialized bytes shown in that preview. Any other answer, end of input, or Ctrl-C cancels the export, writes nothing, and exits with status 1. `export` never replaces an existing file, including one created at the `--out` path while the confirmation prompt was waiting. The standalone `preview` command is a dry run; a later `export` invocation creates a new packet ID and timestamps, so use the preview printed by `export` itself as the final review.
+`export` prints the packet and asks for `y`; only then does it write exactly the bytes it showed. Any other answer, end of input, or Ctrl-C writes nothing and exits 1. It never replaces an existing file, even one created while the prompt was waiting. Each run makes a new packet ID and timestamps, so the preview printed by `export` itself (not an earlier `preview`) is the final review.
 
 Validate a packet's schema and expiry, or mark it used in a local ledger:
 
@@ -49,7 +58,7 @@ python3 -m py_compile context_wallet.py tests/test_context_wallet.py
 python3 -m unittest discover -s tests -v
 ```
 
-The `sample-data/` files use invented values only. Their fixed 2035 dates make the packet a stable, currently unexpired fixture; they are illustrative, not a suggested lifetime. The sample profile is not populated from a real person.
+The `sample-data/` files are invented. The packet's fixed 2035 dates just keep it an unexpired test fixture.
 
 ## What the prototype accepts
 
@@ -62,29 +71,29 @@ Profiles are JSON objects with exactly these top-level keys: `schema_version` (i
 - `current_goal` (up to 240)
 - `accessibility_preferences` (up to 240)
 
-Each value must be non-blank text. Unknown keys, extra schema properties, duplicate JSON keys, `NaN`/`Infinity` constants, control characters (including tabs and newlines), blank values, and overlong values are rejected. Selection must be non-empty, unique, allowlisted, and present in the profile. The profile ID and unselected values are never copied into a packet.
+Each value must be non-blank text. Unknown keys, extra schema properties, duplicate JSON keys, `NaN`/`Infinity` constants, control characters (including tabs and newlines), blank values, and overlong values are rejected. So are invisible Unicode formatting characters (category Cf, e.g. right-to-left overrides and zero-width spaces/joiners, plus line/paragraph separators) in profile values, recipient and purpose, because they can make the preview read differently from the exported text; a side effect is that emoji built with zero-width joiners are not accepted. Selection must be non-empty, unique, allowlisted, and present in the profile. The profile ID and unselected values are never copied into a packet.
 
 A packet contains only `schema_version`, a random packet ID (lowercase canonical UUID), the recipient label (up to 120 characters), stated purpose (up to 400), UTC creation and expiry times (`YYYY-MM-DDTHH:MM:SSZ`), and selected field/value pairs, in the order they were selected. Lifetimes must be from 1 second to 7 days. The preview and file export share one canonical JSON serializer; the export ends with one newline.
 
-## Local-use workflow and limits
+## Limits
 
-The optional consume ledger records packet IDs in a local JSON file and refuses to consume the same ID from that ledger twice. It is a convenience for local workflow state, not a portable or remote one-use guarantee. On POSIX systems, concurrent `consume` runs on the same ledger path take an advisory lock on a sidecar `<ledger>.lock` file so they do not lose each other's updates; on other platforms, racing separate processes can still bypass the ledger. Removing or editing the ledger, or using another device or ledger copy, bypasses it everywhere. A recipient does not consult this ledger.
-
-Expiry is checked against this computer's clock when this program verifies or locally consumes a packet; a packet is expired from its `expires_at` second onward. `verify` does not reject a `created_at` in the future (the 2035 sample depends on this), so it cannot detect a wrong clock or back-dated labels. It is not a remote deletion mechanism: expiry does not force a recipient to forget, delete, or stop using a copy. The packet is ordinary plaintext JSON. This prototype is not encryption, authentication, a digital signature, tamper-proof storage, identity verification, or proof that a named recipient received the packet. Anyone with a copy can read or alter it, and the recipient/purpose labels are descriptive only. It has no integration with any AI, website, app, or recipient system.
-
-Keep profiles, drafts, exports, and ledgers only where you are comfortable storing plaintext files. Use fictional or synthetic values while evaluating this prototype; never put real personal data in the sample files. The code includes no telemetry, background process, browser access, network client, secrets, or external dependencies.
+- **Plaintext, unsigned:** a packet is ordinary JSON. It is not encrypted, authenticated or signed; anyone with a copy can read or edit it (an edited packet still passes `verify` if it stays within the schema). Recipient and purpose are descriptive labels only, not identity checks or proof of delivery.
+- **Expiry is advisory:** it is checked only by this program, against the local clock (a packet is expired from its `expires_at` second). It cannot make a recipient delete or stop using a copy. `verify` does not reject a future `created_at`, so it cannot detect a wrong clock.
+- **The consume ledger is local:** it refuses to consume the same packet ID twice *from that ledger file*. Deleting or copying the ledger, or using another device, bypasses it, and recipients never see it. On Linux/macOS concurrent `consume` runs are serialized with an advisory lock on `<ledger>.lock`; on Windows no lock is taken.
+- **No integrations:** no network client, telemetry, or connection to any AI, app or website. Use fictional values while evaluating, and keep profiles, packets and ledgers only where plaintext is acceptable.
 
 ## Suggested pilot measures
 
-If piloting with consenting participants, collect only aggregate counts and timings, and do not retain profile values or packet contents for measurement. Useful signals include:
+If you pilot this with consenting participants, collect only aggregate counts and timings (never profile values or packet contents): time to a reviewed export, fields selected per packet, how often the preview leads to a change, whether the stated purpose justifies each field, and error/cancellation rates. The prototype does not collect any of these itself.
 
-- **Preparation time:** median time from starting field selection to completing a reviewed export.
-- **Packet minimization:** median number of fields selected per packet, plus the share of packets with one or two fields.
-- **Preview value:** how often a participant removes or changes a field after seeing the preview.
-- **Purpose clarity:** recipient/participant rating of whether the stated purpose explains why each included field is needed.
-- **Workflow friction:** rates of invalid-field errors, cancelled exports, and repeated attempts.
+## Related work / when to use something else
 
-These are proposed manual pilot measures only; the prototype does not collect or calculate them.
+- **Verifiable, selectively disclosed claims:** [W3C Verifiable Credentials](https://www.w3.org/TR/vc-data-model-2.0/) with [SD-JWT](https://datatracker.ietf.org/doc/rfc9901/) or BBS+ signatures, when a recipient must be able to check who issued the data and that it was not altered.
+- **Confidentiality:** encrypt the packet for the recipient (e.g. [age](https://age-encryption.org/) or OpenPGP) if it must not be readable in transit or at rest.
+- **User-controlled data stores:** [Solid](https://solidproject.org/) pods, for access-controlled sharing that can be revoked on the server side.
+- **Consent records:** the Kantara Consent Receipt specification and ISO/IEC TS 27560, for standardized records of what was shared, with whom, and why.
+
+Context Wallet is a small, readable demonstration of data minimization and preview-before-share for local files; it is not a substitute for any of the above.
 
 ## Citation
 
