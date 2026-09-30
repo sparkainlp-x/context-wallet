@@ -344,6 +344,15 @@ class ContextWalletTests(unittest.TestCase):
             create_packet(PROFILE, ["timezone"], "R", "P", 604800,
                           now=datetime(9999, 12, 31, tzinfo=timezone.utc))
 
+    def test_explicit_packet_id_is_validated_not_silently_replaced(self):
+        for bad in ("", "not-a-uuid", "AAAAAAAA-1111-4111-8111-111111111111"):
+            with self.subTest(bad=bad):
+                with self.assertRaisesRegex(WalletError, "packet_id"):
+                    create_packet(PROFILE, ["timezone"], "R", "P", 60, now=NOW, packet_id=bad)
+        generated = create_packet(PROFILE, ["timezone"], "R", "P", 60, now=NOW)["packet_id"]
+        self.assertNotEqual(generated, PACKET_ID)
+        validate_packet({**make_packet(), "packet_id": generated})
+
     def test_selection_validation(self):
         with self.assertRaisesRegex(WalletError, "duplicates"):
             make_packet(("timezone", "timezone"))

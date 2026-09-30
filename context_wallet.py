@@ -280,7 +280,7 @@ def create_packet(
         raise WalletError("packet times are outside the supported date range") from exc
     packet = {
         "schema_version": SCHEMA_VERSION,
-        "packet_id": packet_id or str(uuid.uuid4()),
+        "packet_id": str(uuid.uuid4()) if packet_id is None else packet_id,
         "recipient": recipient,
         "purpose": purpose,
         "created_at": _format_timestamp(created),
