@@ -1,6 +1,7 @@
 # Context Wallet
 
 [![tests](https://github.com/sparkainlp-x/context-wallet/actions/workflows/tests.yml/badge.svg)](https://github.com/sparkainlp-x/context-wallet/actions/workflows/tests.yml)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23061441.svg)](https://doi.org/10.5281/zenodo.23061441)
 
 A compact, offline prototype for preparing a small context packet from a fictional or user-created local profile. A person chooses specific allowlisted fields, names a recipient, states a purpose, sets a short lifetime, and sees the packet before exporting it. The project uses only the Python standard library and makes no network requests.
 
