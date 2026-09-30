@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "packet_id": "11111111-1111-4111-8111-111111111111",
+  "recipient": "Northstar Demo Coach",
+  "purpose": "Draft a one-time fictional neighborhood clean-up planning note.",
+  "created_at": "2035-06-01T12:00:00Z",
+  "expires_at": "2035-06-02T12:00:00Z",
+  "fields": {
+    "preferred_name": "Riley Example",
+    "communication_style": "Concise with friendly bullet points.",
+    "current_goal": "Plan a fictional neighborhood clean-up."
+  }
+}

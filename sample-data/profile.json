@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "profile_id": "sample-fictional-profile",
+  "fields": {
+    "preferred_name": "Riley Example",
+    "role": "Fictional community workshop planner",
+    "timezone": "UTC",
+    "communication_style": "Concise with friendly bullet points.",
+    "current_goal": "Plan a fictional neighborhood clean-up.",
+    "accessibility_preferences": "Plain text is easiest to review."
+  }
+}
