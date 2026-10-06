@@ -1,0 +1,35 @@
+{
+  "upload_type": "software",
+  "title": "Context Wallet",
+  "description": "<p>Offline, standard-library-only prototype for building small, user-selected, short-lived plaintext JSON context packets from a local profile, with preview-before-export and an optional local consume ledger; not encryption, authentication, or remote deletion.</p>",
+  "creators": [
+    {
+      "name": "Brisson, Jean-François",
+      "affiliation": "Spark AI NLP",
+      "orcid": "0009-0000-9778-5374"
+    }
+  ],
+  "access_right": "open",
+  "license": "AGPL-3.0-only",
+  "keywords": [
+    "context",
+    "data-minimization",
+    "consent",
+    "local-first",
+    "offline",
+    "research software"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/sparkainlp-x/context-wallet",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ],
+  "language": "eng",
+  "communities": [
+    {
+      "identifier": "spark-ai-nlp"
+    }
+  ]
+}
