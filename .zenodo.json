@@ -1,7 +1,9 @@
 {
   "upload_type": "software",
-  "title": "Context Wallet",
-  "description": "<p>Offline, standard-library-only prototype for building small, user-selected, short-lived plaintext JSON context packets from a local profile, with preview-before-export and an optional local consume ledger; not encryption, authentication, or remote deletion.</p>",
+  "title": "Context Wallet: purpose-bound, user-reviewed context packets from a local profile",
+  "version": "1.1.1",
+  "publication_date": "2026-10-08",
+  "description": "<p>Context Wallet is an offline prototype for sharing only the personal context a task needs. From a local profile, a person chooses specific allowlisted fields, names a recipient, states a purpose and sets a short lifetime (up to seven days), then sees the exact JSON before export. Export requires explicit confirmation, writes exactly the previewed bytes and never overwrites a file. A verify command checks schema and expiry, and a consume command records use in a local ledger so the same packet is not consumed twice from that ledger.</p><p>Scope: packets are plaintext and unsigned; recipient and purpose are descriptive labels, and expiry is advisory and enforced only by this program. There is no network client or integration with any service. The sample profile is fictional.</p><p>Usage: Python 3.10 or later, standard library only; <code>pip install .</code> adds a <code>context-wallet</code> command. Start with <code>python3 context_wallet.py preview --profile sample-data/profile.json ...</code> as shown in the README. Tests: <code>python3 -m unittest discover -s tests -v</code> (run in CI on Python 3.10 to 3.13 with coverage).</p><p>Citation: cite the concept DOI <a href=\"https://doi.org/10.5281/zenodo.23061441\">10.5281/zenodo.23061441</a> for all versions, or the version DOI of the release you used. Source code: <a href=\"https://github.com/sparkainlp-x/context-wallet\">github.com/sparkainlp-x/context-wallet</a>. Licence: AGPL-3.0-only; commercial licensing is available (see COMMERCIAL-LICENSE.md).</p>",
   "creators": [
     {
       "name": "Brisson, Jean-François",
@@ -12,12 +14,14 @@
   "access_right": "open",
   "license": "AGPL-3.0-only",
   "keywords": [
-    "context",
-    "data-minimization",
+    "data minimization",
+    "privacy by design",
     "consent",
-    "local-first",
+    "personal data",
+    "context sharing",
+    "expiry",
     "offline",
-    "research software"
+    "Python"
   ],
   "related_identifiers": [
     {
@@ -31,5 +35,6 @@
     {
       "identifier": "spark-ai-nlp"
     }
-  ]
+  ],
+  "notes": "Evidence status: SYNTHETIC example data; no field performance is claimed. Commercial licensing: see COMMERCIAL-LICENSE.md."
 }

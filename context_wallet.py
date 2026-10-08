@@ -27,7 +27,7 @@ try:  # POSIX only; used to serialize concurrent consume runs on one ledger path
 except ImportError:  # pragma: no cover - e.g. Windows
     fcntl = None  # type: ignore[assignment]
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 SCHEMA_VERSION = 1
 MAX_LIFETIME_SECONDS = 7 * 24 * 60 * 60
