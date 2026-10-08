@@ -10,6 +10,13 @@ authors:
     affiliation: "Spark AI NLP"
 version: 1.1.1
 date-released: "2026-10-08"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23061441
+    description: "Concept DOI (all versions)"
+  - type: doi
+    value: 10.5281/zenodo.23241628
+    description: "Version DOI for v1.1.1"
 license: AGPL-3.0-only
 repository-code: "https://github.com/sparkainlp-x/context-wallet"
 abstract: "Offline, standard-library-only prototype for building small, user-selected, short-lived plaintext JSON context packets from a local profile, with preview-before-export and an optional local consume ledger; not encryption, authentication, or remote deletion."

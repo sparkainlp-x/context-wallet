@@ -98,7 +98,7 @@ Context Wallet is a small, readable demonstration of data minimization and previ
 
 ## Citation
 
-See [CITATION.cff](CITATION.cff).
+See [CITATION.cff](CITATION.cff). Archived on Zenodo: concept DOI [10.5281/zenodo.23061441](https://doi.org/10.5281/zenodo.23061441) (all versions); v1.1.1: [10.5281/zenodo.23241628](https://doi.org/10.5281/zenodo.23241628).
 
 ## License
 
